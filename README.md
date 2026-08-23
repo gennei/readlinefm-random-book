@@ -27,4 +27,4 @@ python3 -m http.server 8000
 
 毎日1回、デプロイ前にLISTEN RSSを確認し、公開済みPART1のURLを反映します。RSS上にPART1がない本は `books.json` には残りますが、抽選対象には入りません。
 
-リポジトリはprivateのまま保持し、GitHub Pagesの公開アーティファクトにはCSS・JavaScript・JSONを埋め込んだ単体の `index.html` だけを含めます。
+リポジトリはpublicで運用し、GitHub Pagesの公開アーティファクトにはCSS・JavaScript・JSONを埋め込んだ単体の `index.html` だけを含めます。
