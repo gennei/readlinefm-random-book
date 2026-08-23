@@ -18,7 +18,6 @@
     description: document.querySelector("#description"),
     episodeLink: document.querySelector("#episode-link"),
     shuffle: document.querySelector("#shuffle"),
-    catalogNote: document.querySelector("#catalog-note"),
     status: document.querySelector("#status")
   };
 
@@ -209,7 +208,6 @@
 
       if (pool.length === 0) throw new Error("抽選可能な本がありません");
 
-      els.catalogNote.textContent = `${pool.length} playable`;
       els.status.textContent = `${pool.length} books on air`;
       els.shuffle.addEventListener("click", () => renderBook(nextIndex()));
       renderBook(nextIndex());
