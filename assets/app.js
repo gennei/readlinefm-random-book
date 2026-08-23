@@ -4,6 +4,9 @@
   const DATA_NODE_ID = "book-data";
   const LISTEN_URL_PATTERN = /^https:\/\/listen\.style\/p\/readlinefm\/[a-z0-9]+$/;
   const COVER_CACHE_KEY = "readlinefm-book-metadata-v1";
+  const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const COVER_LOADING_MIN_MS = REDUCED_MOTION ? 0 : 300;
+  const COVER_REVEAL_MS = REDUCED_MOTION ? 0 : 240;
 
   const els = {
     bookObject: document.querySelector(".book-object"),
@@ -160,6 +163,25 @@
     els.coverFallback.classList.add("is-visible");
   }
 
+  function wait(milliseconds) {
+    return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+  }
+
+  async function waitForCoverMinimum(startedAt) {
+    const elapsed = performance.now() - startedAt;
+    const remaining = Math.max(0, COVER_LOADING_MIN_MS - elapsed);
+    if (remaining > 0) await wait(remaining);
+  }
+
+  async function revealCoverFallback(token, startedAt) {
+    await waitForCoverMinimum(startedAt);
+    if (token !== renderToken) return;
+
+    showCoverFallback();
+    await wait(COVER_REVEAL_MS);
+    if (token === renderToken) els.shuffle.disabled = false;
+  }
+
   function animateContent() {
     [els.issue, els.title, els.meta, els.description, document.querySelector(".actions")]
       .forEach((element, index) => {
@@ -173,13 +195,14 @@
   async function renderBook(index) {
     const book = pool[index];
     const token = ++renderToken;
+    const coverStartedAt = performance.now();
     lastIndex = index;
 
     els.bookObject.classList.add("is-changing");
     els.shuffle.disabled = true;
     showCoverLoading();
 
-    await new Promise((resolve) => window.setTimeout(resolve, 130));
+    await wait(130);
     if (token !== renderToken) return;
 
     els.title.textContent = book.title;
@@ -203,7 +226,6 @@
 
     animateContent();
     els.bookObject.classList.remove("is-changing");
-    els.shuffle.disabled = false;
 
     const metadata = await getBookMetadata(book);
     if (token !== renderToken) return;
@@ -214,12 +236,15 @@
 
     if (metadata.coverUrl) {
       let triedFallback = false;
-      els.coverImage.onload = () => {
+      els.coverImage.onload = async () => {
+        await waitForCoverMinimum(coverStartedAt);
         if (token !== renderToken) return;
         els.bookObject.setAttribute("aria-busy", "false");
         els.coverImage.classList.add("is-visible");
         els.coverShimmer.classList.remove("is-visible");
         void preloadNextCover();
+        await wait(COVER_REVEAL_MS);
+        if (token === renderToken) els.shuffle.disabled = false;
       };
       els.coverImage.onerror = () => {
         if (metadata.fallbackCoverUrl && !triedFallback) {
@@ -227,11 +252,11 @@
           els.coverImage.src = metadata.fallbackCoverUrl;
           return;
         }
-        if (token === renderToken) showCoverFallback();
+        if (token === renderToken) void revealCoverFallback(token, coverStartedAt);
       };
       els.coverImage.src = metadata.coverUrl;
     } else {
-      showCoverFallback();
+      void revealCoverFallback(token, coverStartedAt);
     }
   }
 
