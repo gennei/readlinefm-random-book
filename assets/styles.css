@@ -145,7 +145,7 @@ a {
   height: 78%;
   content: "";
   border: 1px solid var(--rule);
-  transform: rotate(-5deg);
+  transform: none;
 }
 
 .book-object {
@@ -153,13 +153,13 @@ a {
   z-index: 2;
   width: min(310px, 80%);
   aspect-ratio: 0.69;
-  transform: rotate(-2deg);
+  transform: none;
   transform-origin: 50% 90%;
   transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .book-object.is-changing {
-  transform: rotate(-6deg) translateY(8px) scale(0.97);
+  transform: translateY(8px) scale(0.97);
 }
 
 .cover-image,
