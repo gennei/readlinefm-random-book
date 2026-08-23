@@ -162,7 +162,8 @@ a {
 }
 
 .cover-image,
-.cover-fallback {
+.cover-fallback,
+.cover-shimmer {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -187,6 +188,7 @@ a {
 }
 
 .cover-fallback {
+  z-index: 1;
   overflow: hidden;
   padding: 36px 28px 28px;
   display: flex;
@@ -196,6 +198,52 @@ a {
     linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 4%, transparent 4% 100%),
     #26251f;
   color: var(--paper);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 180ms ease,
+    visibility 0s linear 180ms;
+}
+
+.cover-fallback.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.cover-shimmer {
+  z-index: 3;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 46%),
+    #d8d2c5;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 180ms ease,
+    visibility 0s linear 180ms;
+}
+
+.cover-shimmer::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    105deg,
+    transparent 24%,
+    rgba(255, 255, 255, 0.68) 42%,
+    rgba(255, 255, 255, 0.82) 50%,
+    rgba(255, 255, 255, 0.68) 58%,
+    transparent 76%
+  );
+  transform: translateX(-120%);
+  animation: cover-shimmer 1.25s ease-in-out infinite;
+}
+
+.cover-shimmer.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 .cover-fallback::before {
@@ -237,6 +285,12 @@ a {
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.16em;
+}
+
+@keyframes cover-shimmer {
+  to {
+    transform: translateX(120%);
+  }
 }
 
 .content-column {

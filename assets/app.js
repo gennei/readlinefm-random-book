@@ -9,6 +9,7 @@
     bookObject: document.querySelector(".book-object"),
     coverImage: document.querySelector("#cover-image"),
     coverFallback: document.querySelector("#cover-fallback"),
+    coverShimmer: document.querySelector("#cover-shimmer"),
     coverTitle: document.querySelector("#cover-title"),
     coverEpisode: document.querySelector("#cover-episode"),
     titleSlot: document.querySelector("#title-slot"),
@@ -121,6 +122,37 @@
     return bag.pop();
   }
 
+  async function preloadNextCover() {
+    if (bag.length === 0) refillBag();
+    const nextBook = pool[bag[bag.length - 1]];
+    if (!nextBook) return;
+
+    const metadata = await getBookMetadata(nextBook);
+    if (!metadata.coverUrl) return;
+
+    await new Promise((resolve) => {
+      const image = new Image();
+      image.onload = resolve;
+      image.onerror = resolve;
+      image.src = metadata.coverUrl;
+    });
+  }
+
+  function showCoverLoading() {
+    els.bookObject.setAttribute("aria-busy", "true");
+    els.coverImage.classList.remove("is-visible");
+    els.coverFallback.classList.remove("is-visible");
+    els.coverShimmer.classList.add("is-visible");
+    els.coverImage.removeAttribute("src");
+  }
+
+  function showCoverFallback() {
+    els.bookObject.setAttribute("aria-busy", "false");
+    els.coverImage.classList.remove("is-visible");
+    els.coverShimmer.classList.remove("is-visible");
+    els.coverFallback.classList.add("is-visible");
+  }
+
   function animateContent() {
     [els.issue, els.title, els.meta, els.description, document.querySelector(".actions")]
       .forEach((element, index) => {
@@ -138,8 +170,7 @@
 
     els.bookObject.classList.add("is-changing");
     els.shuffle.disabled = true;
-    els.coverImage.classList.remove("is-visible");
-    els.coverImage.removeAttribute("src");
+    showCoverLoading();
 
     await new Promise((resolve) => window.setTimeout(resolve, 130));
     if (token !== renderToken) return;
@@ -175,18 +206,26 @@
     }
 
     if (metadata.coverUrl) {
+      let triedFallback = false;
       els.coverImage.alt = `${book.title}の書影`;
       els.coverImage.onload = () => {
-        if (token === renderToken) els.coverImage.classList.add("is-visible");
+        if (token !== renderToken) return;
+        els.bookObject.setAttribute("aria-busy", "false");
+        els.coverImage.classList.add("is-visible");
+        els.coverShimmer.classList.remove("is-visible");
+        void preloadNextCover();
       };
       els.coverImage.onerror = () => {
-        if (metadata.fallbackCoverUrl && els.coverImage.src !== metadata.fallbackCoverUrl) {
+        if (metadata.fallbackCoverUrl && !triedFallback) {
+          triedFallback = true;
           els.coverImage.src = metadata.fallbackCoverUrl;
           return;
         }
-        els.coverImage.classList.remove("is-visible");
+        if (token === renderToken) showCoverFallback();
       };
       els.coverImage.src = metadata.coverUrl;
+    } else {
+      showCoverFallback();
     }
   }
 
