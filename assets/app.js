@@ -143,12 +143,19 @@
     els.coverImage.classList.remove("is-visible");
     els.coverFallback.classList.remove("is-visible");
     els.coverShimmer.classList.add("is-visible");
+    els.coverImage.onload = null;
+    els.coverImage.onerror = null;
+    els.coverImage.alt = "";
     els.coverImage.removeAttribute("src");
   }
 
   function showCoverFallback() {
     els.bookObject.setAttribute("aria-busy", "false");
     els.coverImage.classList.remove("is-visible");
+    els.coverImage.onload = null;
+    els.coverImage.onerror = null;
+    els.coverImage.alt = "";
+    els.coverImage.removeAttribute("src");
     els.coverShimmer.classList.remove("is-visible");
     els.coverFallback.classList.add("is-visible");
   }
@@ -207,7 +214,6 @@
 
     if (metadata.coverUrl) {
       let triedFallback = false;
-      els.coverImage.alt = `${book.title}の書影`;
       els.coverImage.onload = () => {
         if (token !== renderToken) return;
         els.bookObject.setAttribute("aria-busy", "false");
