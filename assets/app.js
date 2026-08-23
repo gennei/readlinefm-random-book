@@ -23,7 +23,6 @@
   };
 
   let pool = [];
-  let catalogSize = 0;
   let bag = [];
   let lastIndex = -1;
   let renderToken = 0;
@@ -206,12 +205,11 @@
   async function init() {
     try {
       const books = await loadBooks();
-      catalogSize = books.length;
       pool = books.filter((book) => LISTEN_URL_PATTERN.test(book.episodePart1Url || ""));
 
       if (pool.length === 0) throw new Error("抽選可能な本がありません");
 
-      els.catalogNote.textContent = `${pool.length} playable / ${catalogSize} catalogued`;
+      els.catalogNote.textContent = `${pool.length} playable`;
       els.status.textContent = `${pool.length} books on air`;
       els.shuffle.addEventListener("click", () => renderBook(nextIndex()));
       renderBook(nextIndex());
