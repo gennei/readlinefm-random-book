@@ -5,8 +5,8 @@ readline.fmで紹介した48冊のうち、LISTENにPART1が公開されてい�
 ## 現在のデータ
 
 - 収録本: 48冊
-- 抽選対象: PART1 URLがある46冊
-- 抽選対象外: PART1未公開の2冊
+- 抽選対象: PART1 URLがある本
+- 抽選対象外: PART1未公開の本
 - RSS: <https://rss.listen.style/p/readlinefm/rss>
 
 ## プレビュー
@@ -25,6 +25,6 @@ python3 -m http.server 8000
 2. GitHubの **Settings → Pages → Build and deployment → Source** で **GitHub Actions** を選びます。
 3. `main` ブランチへpushすると公開されます。
 
-毎日1回、デプロイ前にLISTEN RSSを確認し、公開済みPART1のURLを反映します。RSS上にPART1がない本は `books.json` には残りますが、抽選対象には入りません。
+mainへのpushまたは手動実行時にLISTEN RSSを確認し、公開済みPART1のURLを反映します。RSS上にPART1がない本は `books.json` には残りますが、抽選対象には入りません。
 
 リポジトリはpublicで運用し、GitHub Pagesの公開アーティファクトにはCSS・JavaScript・JSONを埋め込んだ単体の `index.html` だけを含めます。

@@ -12,8 +12,7 @@ const uniqueUrls = new Set(playable.map((book) => book.episodePart1Url));
 const errors = [];
 
 if (books.length !== 48) errors.push(`catalogue must contain 48 books, found ${books.length}`);
-if (playable.length !== 46) errors.push(`playable pool must contain 46 books, found ${playable.length}`);
-if (unavailable.length !== 2) errors.push(`unavailable pool must contain 2 books, found ${unavailable.length}`);
+if (playable.length < 46) errors.push(`playable pool must contain at least 46 books, found ${playable.length}`);
 if (uniqueUrls.size !== playable.length) errors.push("episodePart1Url values must be unique");
 
 for (const [index, book] of books.entries()) {
